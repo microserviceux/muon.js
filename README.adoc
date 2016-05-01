@@ -1,0 +1,14 @@
+# Muon JS
+
+Muon in the browser.
+
+See http://muoncore.io for more information on muon
+
+## Getting Started
+
+```
+make muonjs
+make run
+```
+
+Visit http://localhost:5000 for a running muon instance in the browser. It is given full permissions to communicate with the local muon environment

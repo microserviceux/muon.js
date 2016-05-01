@@ -1,0 +1,45 @@
+{
+  "name": "muonjs",
+  "version": "0.0.1",
+  "description": "Muon in the Browser, Requires a functional muon.js gateway",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --recursive -R xunit-file test/",
+    "dev": "node test/server/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/microserviceux/muon.js.git"
+  },
+  "keywords": [
+    "Muon",
+    "microservices",
+    "reactive",
+    "streaming",
+    "events",
+    "browser"
+  ],
+  "dependencies": {
+    "muon-core": "*"
+  },
+  "devDependencies": {
+    "envify": "~1.2.1",
+    "babel-preset-react": "^6.5.0",
+    "babel-preset-es2015": "*",
+    "babelify": "^7.2.0",
+    "express": "^4.4.5",
+    "ws": "0.4.x",
+    "assert": "*",
+    "babel": "^6.5.2",
+    "babel-core": "^6.4.5",
+    "babel-loader": "^6.2.1",
+    "mocha": "*",
+    "webpack": "^1.12.12"
+  },
+  "author": "Muon Core Ltd",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/microserviceux/muon.js/issues"
+  },
+  "homepage": "https://github.com/microserviceux/muon.js#readme"
+}
