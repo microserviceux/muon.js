@@ -9,35 +9,21 @@ var BrowserTransport = function (serviceName, serverStacks, url) {
     var transport = this;
 
     this.ws.onmessage = function (event) {
-        //TODO, lookup the channelconnection based on the channelId
-        console.log("MESSAGE RECEIVED FROM SERVER: " + JSON.stringify(event.data));
-
+        logger.debug("MESSAGE RECEIVED FROM SERVER: " + JSON.stringify(event.data));
         var data = JSON.parse(event.data);
         var channelId = data.channelId;
-
         var connection = transport.channelConnections[channelId];
-
         connection.channel.rightConnection().send(data);
     };
 
     //todo, on close, open the websocket connection again.
-
-    //need some way to "create" a channel.
-    /*
-    create a channel identifier. regsiter the channel connection with that ident
-
-    send a channel open message to the server side.
-
-    the dispatch the rest....
-     */
-
 };
 
 BrowserTransport.prototype.openChannel = function(serviceName, protocolName) {
 
     var transport = this;
 
-    //TODO, do we need a queue?
+    //TODO, do we need a queue? [yes!]
 
     var channelConnection = {
         channelId:uuid.v1(),
@@ -73,8 +59,6 @@ BrowserTransport.prototype.openChannel = function(serviceName, protocolName) {
             });
         },
         send: function(msg) {
-            console.log("Sending!!!!!!!!!")
-            console.dir(msg)
             try {
                 msg.channelId = channelConnection.channelId;
 

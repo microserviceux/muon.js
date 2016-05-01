@@ -12,7 +12,7 @@ module.exports = function() {
     var websockurl = "ws://localhost:5000/transport"
     var discoverurl = "ws://localhost:5000/discover"
 
-    //TODO construct a muon with the browser transport and discovery
+    //TODO construct a muon with the browser transport and discovery. Use the location origin to detect what this should be.
     logger.info("HELLO WORLD, THIS IS AWESOME!")
 
     
@@ -28,13 +28,5 @@ module.exports = function() {
         }
     }
     
-    var muon = Muon.api(serviceName, infrastructure)
-
-    setTimeout(function() {
-        muon.request("rpc://tckservice/echo", {hello: "owlrd"}, function (ret) {
-            logger.info("GOT DATA BACK!")
-            console.dir(ret)
-        });
-    }, 1000);
-    
+    return Muon.api(serviceName, infrastructure)
 }
