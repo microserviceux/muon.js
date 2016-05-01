@@ -6,9 +6,27 @@ See http://muoncore.io for more information on muon
 
 ## Getting Started
 
+To test drive muon.js, you can run the demo application.  This starts a gateway, and demonstrates the capabilities coming from running muon in the browser.
+
 ```
-make muonjs
 make run
 ```
 
-Visit http://localhost:5000 for a running muon instance in the browser. It is given full permissions to communicate with the local muon environment
+Visit http://localhost:5000 for a running muon instance in the browser. It is given full permissions to communicate with the local muon environment.
+
+Start a few other muon services, especially event services, such as Photon.
+
+## Adding to your application
+
+You will need to implement both a server side gateway, and a client browser application.
+
+### Gateway
+
+See the existing gateway.
+
+### Client
+
+Muon.js is published to NPM. Include it into your application using require and use a packager, such as browserify or webpack to transpile it into
+your application code.
+
+Then, include it as normal.

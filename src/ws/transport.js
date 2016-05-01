@@ -1,5 +1,5 @@
 var _ = require("underscore");
-var bichannel = require('../../infrastructure/channel');
+var bichannel = require('muon-core').channel();
 var uuid = require("node-uuid");
 
 var BrowserTransport = function (serviceName, serverStacks, url) {
@@ -13,7 +13,7 @@ var BrowserTransport = function (serviceName, serverStacks, url) {
         console.log("MESSAGE RECEIVED FROM SERVER: " + JSON.stringify(event.data));
 
         var data = JSON.parse(event.data);
-        var channelId = data.headers.channelId;
+        var channelId = data.channelId;
 
         var connection = transport.channelConnections[channelId];
 
@@ -74,22 +74,17 @@ BrowserTransport.prototype.openChannel = function(serviceName, protocolName) {
         },
         send: function(msg) {
             console.log("Sending!!!!!!!!!")
+            console.dir(msg)
             try {
-                msg.headers.targetService = channelConnection.serviceName;
-                msg.headers.channelId = channelConnection.channelId;
-                msg.headers.PROTOCOL = channelConnection.protocolName;
+                msg.channelId = channelConnection.channelId;
 
-                var message = {
-                    headers: msg.headers,
-                    payload: msg.payload
-                };
-
-                var out = JSON.stringify(message);
+                var out = JSON.stringify(msg);
 
                 logger.info("[***** TRANSPORT *****] Sending event outbound to browser transport " + out);
                 transport.ws.send(out);
             } catch (err) {
                 console.log("ERROROROR");
+                console.dir(err)
             }
         }
     };

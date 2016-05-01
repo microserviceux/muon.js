@@ -1,9 +1,14 @@
 
 clean:
 	rm -rf dist
-	rm test/server/muon.js
+	rm -f test/server/generated.js
 
 muonjs: clean
 	mkdir -p dist/
-	browserify src/index.js -o dist/muon.js
-	ln -s dist/muon.js test/server/muon.js
+	browserify test/server/app.js -o test/server/generated.js
+
+run: muonjs
+	npm run dev
+
+publish:
+	npm publish

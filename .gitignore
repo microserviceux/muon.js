@@ -1,5 +1,11 @@
+.idea/
+*.iml
+*.ipr
+*.iws
+.settings
+
 dist/
-test/server/muon.js
+test/server/generated.js
 # Created by .ignore support plugin (hsz.mobi)
 ### Node template
 # Logs

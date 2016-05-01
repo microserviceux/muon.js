@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha --recursive -R xunit-file test/",
-    "dev": "node test/server/index.js"
+    "dev": "node test/server/server.js"
   },
   "repository": {
     "type": "git",
@@ -20,7 +20,10 @@
     "browser"
   ],
   "dependencies": {
-    "muon-core": "*"
+    "sexylog": "0.0.3",
+    "muon-core": "*",
+    "underscore": "*",
+    "node-uuid": "*"
   },
   "devDependencies": {
     "envify": "~1.2.1",
