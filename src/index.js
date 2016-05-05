@@ -5,13 +5,15 @@ var transport = require("./ws/transport")
 var discovery = require("./ws/discovery")
 var ws = require("ws")
 
-module.exports.gateway = function(httpExpress, muon) {
-    var WebSocketServer = ws.Server
+module.exports.gateway = function(conf) {
 
-    var wss = new WebSocketServer({server: httpExpress, path:"/discover"})
-    logger.log("websocket server created")
+    var muon = conf.muon
+    var app=conf.app
+//todo, hook into the
+    var expressWs = require('express-ws')(conf.app);
 
-    wss.on("connection", function(ws) {
+    app.ws('/discover', function(ws, req) {
+        logger.info("WHAT!?!?!")
         //todo, tap the discovery and propogate to clients.
         //todo,enable filtering of which services are propogated.
 
@@ -33,11 +35,10 @@ module.exports.gateway = function(httpExpress, muon) {
             clearInterval(interval);
         })
     });
+    logger.log("websocket server created")
 
-    var transport = new WebSocketServer({server: httpExpress, path:"/transport"})
-    console.log("websocket trasport server created")
-
-    transport.on("connection", function(ws) {
+    app.ws('/transport', function(ws, req) {
+        console.log("websocket trasport server created")
 
         var connections = {};
 
@@ -83,21 +84,21 @@ module.exports.gateway = function(httpExpress, muon) {
             console.log("websocket connection close")
         })
     });
-
 }
 
 module.exports.client = function() {
     
     //detect the browser setup. 
 
-    var serviceName = "browser-instance"
-    var websockurl = "ws://localhost:5000/transport"
-    var discoverurl = "ws://localhost:5000/discover"
+    var port = window.location.port
+    var host = window.location.hostname
 
-    //TODO construct a muon with the browser transport and discovery. Use the location origin to detect what this should be.
-    logger.info("HELLO WORLD, THIS IS AWESOME!")
-
+    var basews = "ws://" + host + ":" + port
     
+    var serviceName = "browser-instance"
+    var websockurl = basews + "/transport"
+    var discoverurl = basews + "/discover"
+
     var serverStacks = new Muon.ServerStacks(serviceName);
 
     var infrastructure = {
