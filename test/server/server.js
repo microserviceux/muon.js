@@ -10,7 +10,7 @@ app.use(express.static("./test/server"))
 var Muon = require("muon-core");
 
 var muon = Muon.create("browser-gateway", process.env.MUON_URL || "amqp://muon:microservices@localhost");
-var muonjs = require("../../src/index").gateway({app:app, muon:muon})
+var muonjs = require("../../src/index").gateway({muon:muon})
 
 logger.info("Started muon gateway")
 app.listen(port)

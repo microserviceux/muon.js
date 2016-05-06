@@ -2,9 +2,15 @@ var _ = require("underscore");
 var bichannel = require('muon-core').channel();
 var uuid = require("node-uuid");
 
-var BrowserTransport = function (serviceName, serverStacks, url) {
-    this.ws = new WebSocket(url, "protocolOne");
+var SockJS = require("sockjs-client")
 
+var BrowserTransport = function (serviceName, serverStacks, url) {
+
+    this.ws = new SockJS(url);
+
+    // this.ws = new WebSocket(url, "protocolOne");
+
+    logger.info("STARTING BRTRANSPORT")
     this.channelConnections = {};
     var transport = this;
 

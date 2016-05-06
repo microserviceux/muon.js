@@ -1,58 +1,59 @@
 require("sexylog")
 
+var http = require("http")
 var Muon = require("muon-core")
 var transport = require("./ws/transport")
 var discovery = require("./ws/discovery")
-var ws = require("ws")
+var sockjs_opts = {sockjs_url: "http://cdn.jsdelivr.net/sockjs/1.0.1/sockjs.min.js"};
 
 module.exports.gateway = function(conf) {
 
     var muon = conf.muon
     var app=conf.app
-//todo, hook into the
-    var expressWs = require('express-ws')(conf.app);
+    var port = conf.port || 9999
 
-    app.ws('/discover', function(ws, req) {
-        logger.info("WHAT!?!?!")
-        //todo, tap the discovery and propogate to clients.
-        //todo,enable filtering of which services are propogated.
+    var discovery = require('sockjs').createServer(sockjs_opts);
+    var transport = require('sockjs').createServer(sockjs_opts);
+    
+    if (app == undefined) {
+        logger.info("No existing application passed in, will create a new http endpoint on port " + port)
+        var server = http.createServer();
+        server.addListener('upgrade', function(req,res){
+            res.end();
+        });
+        discovery.installHandlers(server, {prefix:'/discover'});
+        transport.installHandlers(server, {prefix:'/transport'});
+        server.listen(9999, '0.0.0.0');
+    }
 
+    discovery.on('connection', function(ws) {
+        logger.info("Discovery connected")
+        ws.on('data', function(message) {
+            console.log("DUISCOVERY GOT DATA...." + JSON.stringify(message));
+        });
         var interval = setInterval(function() {
             // ws.send(JSON.stringify({
             //     identifier:"simples"
             // }), function() {  })
         }, 2000);
-
-        ws.on('message', function message(data, flags) {
-            console.log("DUISCOVERY GOT DATA...." + JSON.stringify(data));
-
-        });
-
-        console.log("websocket discovery connection open")
-
         ws.on("close", function() {
             console.log("websocket connection close")
             clearInterval(interval);
         })
     });
-    logger.log("websocket server created")
 
-    app.ws('/transport', function(ws, req) {
-        console.log("websocket trasport server created")
-
+    transport.on("connection", function(ws) {
+        console.log("Transport connected")
+    
         var connections = {};
-
+    
         console.log("websocket transport connection open")
-
+    
         //TODO, hook into a muon transport to forward messages to this.
         //todo, implement how to open/ close channels.
         //
-
-        ws.onmessage = function(data) {
-            console.log("Hello??");
-        };
-
-        ws.on('message', function message(data, flags) {
+    
+        ws.on('data', function message(data) {
             var myData = JSON.parse(data);
             console.dir(myData);
             var channelId = myData.channelId;
@@ -60,9 +61,9 @@ module.exports.gateway = function(conf) {
             var protocol = myData.protocol;
             // TODO, this should be an optional override.
             myData.origin_service = muon.infrastructure().config.serviceName;
-
+    
             var internalChannel = connections[channelId];
-
+    
             if (internalChannel == undefined) {
                 logger.debug("Establishing new channel to " + targetService + protocol);
                 internalChannel = muon.transportClient().openChannel(targetService, protocol);
@@ -70,15 +71,15 @@ module.exports.gateway = function(conf) {
                 internalChannel.listen(function(msg) {
                     logger.debug("Sending message back down ws for channel " + channelId);
                     msg["channelId"] = channelId;
-                    ws.send(JSON.stringify(msg));
+                    ws.write(JSON.stringify(msg));
                 });
             }
-
+    
             console.log("Routing message on channel: " + channelId);
             delete myData.channelId;
             internalChannel.send(myData);
         });
-
+    
         ws.on("close", function() {
             // TODO, destroy the channel connections that hook into this.
             console.log("websocket connection close")
@@ -90,10 +91,12 @@ module.exports.client = function() {
     
     //detect the browser setup. 
 
-    var port = window.location.port
+    // var port = window.location.port
     var host = window.location.hostname
 
-    var basews = "ws://" + host + ":" + port
+    var port = 9999
+    
+    var basews = "http://" + host + ":" + port
     
     var serviceName = "browser-instance"
     var websockurl = basews + "/transport"

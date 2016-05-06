@@ -9,19 +9,19 @@ var BrowserDiscovery = function (url) {
 
     var _this = this;
 
-    var ws = new WebSocket(url, "protocolOne");
-
-    ws.onmessage = function (event) {
-        try {
-            var pay = event.data;
-            if (_this.discoveredServiceList.indexOf(pay.identifier) < 0) {
-                _this.discoveredServiceList.push(pay.identifier);
-                _this.discoveredServices.push(pay);
-            }
-        } catch (err) {
-            console.warn("Had issues parsing ... ");
-        }
-    };
+    // var ws = new WebSocket(url, "protocolOne");
+    //
+    // ws.onmessage = function (event) {
+    //     try {
+    //         var pay = event.data;
+    //         if (_this.discoveredServiceList.indexOf(pay.identifier) < 0) {
+    //             _this.discoveredServiceList.push(pay.identifier);
+    //             _this.discoveredServices.push(pay);
+    //         }
+    //     } catch (err) {
+    //         console.warn("Had issues parsing ... ");
+    //     }
+    // };
 };
 
 BrowserDiscovery.prototype.advertiseLocalService = function (serviceDescriptor) {

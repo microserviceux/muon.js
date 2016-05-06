@@ -1,6 +1,6 @@
 {
   "name": "muonjs",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Muon in the Browser, Requires a functional muon.js gateway",
   "main": "src/index.js",
   "scripts": {
@@ -24,8 +24,8 @@
     "muon-core": "7.0.7",
     "underscore": "*",
     "node-uuid": "*",
-    "ws": "0.4.x",
-    "express-ws":"*"
+    "sockjs": "*",
+    "sockjs-client": "*"
   },
   "devDependencies": {
     "envify": "~1.2.1",
