@@ -1,6 +1,6 @@
 {
   "name": "muonjs",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Muon in the Browser, Requires a functional muon.js gateway",
   "main": "src/index.js",
   "scripts": {
