@@ -6,14 +6,37 @@ var SockJS = require("sockjs-client")
 
 var BrowserTransport = function (serviceName, serverStacks, url) {
 
-    this.ws = new SockJS(url);
+    var trans = this;
+    this.url = url
+    this.isOpen = false
+    this.initTransport();
+    
+    this.ws.onclose = function() {
+        logger.info("CLOSED CONNECITION")
+        this.isOpen = false
 
-    // this.ws = new WebSocket(url, "protocolOne");
+        setTimeout(function() {
+            trans.initTransport();
+        }, 1000);
+    }.bind(this)
+};
 
-    logger.info("STARTING BRTRANSPORT")
+BrowserTransport.prototype.initTransport = function() {
+    logger.info("Booting transport, sock js is currently closed and buffer queue is accepted messages")
+
+    this.ws = new SockJS(this.url);
+
     this.channelConnections = {};
     var transport = this;
 
+    this.ws.onopen = function() {
+        transport.isOpen = true;
+        logger.info("SockJS becomes ready, draining connection buffers")
+        _.each(this.channelConnections, function(connection) {
+            connection.drainQueue()
+        })
+    }.bind(this)
+    
     this.ws.onmessage = function (event) {
         logger.debug("MESSAGE RECEIVED FROM SERVER: " + JSON.stringify(event.data));
         var data = JSON.parse(event.data);
@@ -21,9 +44,7 @@ var BrowserTransport = function (serviceName, serverStacks, url) {
         var connection = transport.channelConnections[channelId];
         connection.channel.rightConnection().send(data);
     };
-
-    //todo, on close, open the websocket connection again.
-};
+}
 
 BrowserTransport.prototype.openChannel = function(serviceName, protocolName) {
 
@@ -66,14 +87,19 @@ BrowserTransport.prototype.openChannel = function(serviceName, protocolName) {
         },
         send: function(msg) {
             try {
-                msg.channelId = channelConnection.channelId;
+                if (!transport.isOpen) {
+                    logger.info("[***** TRANSPORT *****] Transport is not yet ready, buffering message")
+                    this.outboundBuffer.push(msg)
+                } else {
+                    msg.channelId = channelConnection.channelId;
 
-                var out = JSON.stringify(msg);
+                    var out = JSON.stringify(msg);
 
-                logger.info("[***** TRANSPORT *****] Sending event outbound to browser transport " + out);
-                transport.ws.send(out);
+                    logger.info("[***** TRANSPORT *****] Sending event outbound to browser transport " + out);
+                    transport.ws.send(out);
+                }
             } catch (err) {
-                console.log("ERROROROR");
+                console.log("[***** TRANSPORT *****] Error received");
                 console.dir(err)
             }
         }

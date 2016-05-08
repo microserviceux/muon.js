@@ -7,7 +7,7 @@ var discovery = require("./ws/discovery")
 var sockjs_opts = {sockjs_url: "http://cdn.jsdelivr.net/sockjs/1.0.1/sockjs.min.js"};
 
 module.exports.gateway = function(conf) {
-
+    
     var muon = conf.muon
     var app=conf.app
     var port = conf.port || 9999
