@@ -3,6 +3,8 @@ var bichannel = require('muon-core').channel();
 var uuid = require("node-uuid");
 
 var SockJS = require("sockjs-client")
+var MuonSocketAgent = require("muon-core").MuonSocketAgent
+var RSVP = require('rsvp');
 
 var BrowserTransport = function (serviceName, serverStacks, url) {
 
@@ -12,7 +14,7 @@ var BrowserTransport = function (serviceName, serverStacks, url) {
     this.initTransport();
     
     this.ws.onclose = function() {
-        logger.info("CLOSED CONNECITION")
+        logger.info("CLOSED CONNECTION, retrying ...")
         this.isOpen = false
 
         setTimeout(function() {
@@ -22,7 +24,7 @@ var BrowserTransport = function (serviceName, serverStacks, url) {
 };
 
 BrowserTransport.prototype.initTransport = function() {
-    logger.info("Booting transport, sock js is currently closed and buffer queue is accepted messages")
+    logger.info("Booting transport, sock js is currently closed and buffer queue is accepting messages")
 
     this.ws = new SockJS(this.url);
 
@@ -44,15 +46,38 @@ BrowserTransport.prototype.initTransport = function() {
         var connection = transport.channelConnections[channelId];
         connection.channel.rightConnection().send(data);
     };
+
+    
+    // var upstreamCallback
+    // var transportErrCallback = function (err) {
+    //     logger.error('[*** TRANSPORT:ERROR ***] ' + err);
+    //     if (upstreamCallback) {
+    //         upstreamCallback(err);
+    //     }
+    // }
+
+    this.promise = new RSVP.Promise(function (resolve, reject) {
+        var trans = {
+            openChannel: function (remoteServiceName, protocolName) {
+                return transport.openChannel(remoteServiceName, protocolName)
+            },
+            onError: function (cb) {
+                logger.warn("Error callback passed into browser transport, this is not currently used and will be ignored")
+                // upstreamCallback = cb;
+            },
+            shutdown: function () {
+                logger.warn("shutdown() called on browser transport. This is not currently used and will be ignored")
+            }
+        }
+        resolve(trans);
+    })
 }
 
 BrowserTransport.prototype.openChannel = function(serviceName, protocolName) {
 
     var transport = this;
 
-    //TODO, do we need a queue? [yes!]
-
-    var channelConnection = {
+    var transportChannel = {
         channelId:uuid.v1(),
         serviceName: serviceName,
         protocolName: protocolName,
@@ -91,11 +116,11 @@ BrowserTransport.prototype.openChannel = function(serviceName, protocolName) {
                     logger.info("[***** TRANSPORT *****] Transport is not yet ready, buffering message")
                     this.outboundBuffer.push(msg)
                 } else {
-                    msg.channelId = channelConnection.channelId;
+                    msg.channelId = transportChannel.channelId;
 
                     var out = JSON.stringify(msg);
 
-                    logger.info("[***** TRANSPORT *****] Sending event outbound to browser transport " + out);
+                    logger.debug("[***** TRANSPORT *****] Sending event outbound to browser transport " + out);
                     transport.ws.send(out);
                 }
             } catch (err) {
@@ -105,24 +130,28 @@ BrowserTransport.prototype.openChannel = function(serviceName, protocolName) {
         }
     };
 
-    this.channelConnections[channelConnection.channelId] = channelConnection;
+    this.channelConnections[transportChannel.channelId] = transportChannel;
+    // var agentRight = bichannel.create("browser-transport-right");
+    var agentLeft = bichannel.create("browser-transport-left");
 
-    channelConnection.channel = bichannel.create("browser-transport");
-
-    channelConnection.channel.rightConnection().listen(function(msg) {
-        logger.info("[***** TRANSPORT *****] received outbound event");
+    agentLeft.rightConnection().listen(function(msg) {
+        logger.debug("[***** TRANSPORT *****] received outbound event");
         if (msg == "poison") {
-            channelConnection.shutdown();
+            transportChannel.shutdown();
             return;
         }
-        if(channelConnection.channelOpen) {
-            channelConnection.send(msg);
+        if(transportChannel.channelOpen) {
+            transportChannel.send(msg);
         } else {
-            channelConnection.outboundBuffer.push(msg);
+            transportChannel.outboundBuffer.push(msg);
         }
-    }.bind(channelConnection));
+    }.bind(transportChannel));
 
-    return channelConnection.channel.leftConnection();
+//    new MuonSocketAgent(agentLeft, agentRight, protocolName, 1000);
+
+    transportChannel.channel = agentLeft
+
+    return agentLeft.leftConnection();
 };
 
 
@@ -132,3 +161,24 @@ BrowserTransport.prototype.shutdown = function() {
 
 module.exports = BrowserTransport;
 
+
+function wrap(connection) {
+
+    var wrapperChannel = bichannel.create(connection.name() + "-wrapper");
+
+    wrapperChannel.rightConnection().listen(function(msg) {
+        connection.send(msg);
+    });
+
+    connection.listen(function(msg) {
+        try {
+            wrapperChannel.rightConnection().send(msg);
+        } catch(err) {
+            logger.warn('error sending message on csp channel ' + connection);
+            logger.warn(err.stack);
+        }
+
+    });
+
+    return wrapperChannel;
+}

@@ -1,5 +1,6 @@
 require("sexylog")
 
+var _ = require("underscore")
 var http = require("http")
 var Muon = require("muon-core")
 var transport = require("./ws/transport")
@@ -11,6 +12,8 @@ module.exports.gateway = function(conf) {
     var muon = conf.muon
     var app=conf.app
     var port = conf.port || 9999
+    
+    console.dir(muon)
 
     var discovery = require('sockjs').createServer(sockjs_opts);
     var transport = require('sockjs').createServer(sockjs_opts);
@@ -49,40 +52,52 @@ module.exports.gateway = function(conf) {
     
         console.log("websocket transport connection open")
     
-        //TODO, hook into a muon transport to forward messages to this.
-        //todo, implement how to open/ close channels.
-        //
-    
         ws.on('data', function message(data) {
-            var myData = JSON.parse(data);
-            console.dir(myData);
-            var channelId = myData.channelId;
-            var targetService = myData["target_service"];
-            var protocol = myData.protocol;
-            // TODO, this should be an optional override.
-            myData.origin_service = muon.infrastructure().config.serviceName;
-    
-            var internalChannel = connections[channelId];
-    
-            if (internalChannel == undefined) {
-                logger.debug("Establishing new channel to " + targetService + protocol);
-                internalChannel = muon.transportClient().openChannel(targetService, protocol);
-                connections[channelId] = internalChannel;
-                internalChannel.listen(function(msg) {
-                    logger.debug("Sending message back down ws for channel " + channelId);
-                    msg["channelId"] = channelId;
-                    ws.write(JSON.stringify(msg));
-                });
-            }
-    
-            console.log("Routing message on channel: " + channelId);
-            delete myData.channelId;
-            internalChannel.send(myData);
+            
+            muon.infrastructure().getTransport().then(function(transport) {
+                var myData = JSON.parse(data);
+                console.dir(myData);
+                var channelId = myData.channelId;
+                var targetService = myData["target_service"];
+                var protocol = myData.protocol;
+                // TODO, this should be an optional override.
+                myData.origin_service = muon.infrastructure().config.serviceName;
+
+                var internalChannel = connections[channelId];
+                
+                logger.info("ROUTING MESSAGE " + JSON.stringify(myData))
+
+                if (myData.channel_op == "closed") {
+                    logger.debug("SHUTDOWN CHANNEL BY CLIENT REQUEST")
+                    internalChannel.shutdown()
+                    delete connections[channelId]
+                } else {
+                    if (internalChannel == undefined) {
+                        logger.debug("Establishing new channel to " + targetService + protocol);
+                        internalChannel = transport.openChannel(targetService, protocol);
+                        connections[channelId] = internalChannel;
+                        internalChannel.listen(function (msg) {
+                            logger.debug("Sending message back down ws for channel " + channelId);
+                            msg["channelId"] = channelId;
+                            ws.write(JSON.stringify(msg));
+                        });
+                    }
+                    // console.log("Routing message on channel: " + channelId);
+                    delete myData.channelId;
+                    internalChannel.send(myData);
+                }
+            })
         });
     
         ws.on("close", function() {
             // TODO, destroy the channel connections that hook into this.
             console.log("websocket connection close")
+
+            _.each(connections, function(conn) {
+                conn.send(Muon.Messages.shutdownMessage())
+                conn.close()
+            })
+            connections = null
         })
     });
 }
@@ -104,10 +119,13 @@ module.exports.client = function() {
 
     var serverStacks = new Muon.ServerStacks(serviceName);
 
+    var trans = new transport(serviceName, serverStacks, websockurl)
+    
     var infrastructure = {
         config: {},
         discovery: new discovery(discoverurl),
-        transport: new transport(serviceName, serverStacks, websockurl),
+        transport: trans,
+        getTransport: function() { return trans.promise },
         serverStacks: serverStacks,
         shutdown: function() {
             //shutdown stuff...

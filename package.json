@@ -1,6 +1,6 @@
 {
   "name": "muonjs",
-  "version": "0.0.16",
+  "version": "0.0.37",
   "description": "Muon in the Browser, Requires a functional muon.js gateway",
   "main": "src/index.js",
   "scripts": {
@@ -21,11 +21,12 @@
   ],
   "dependencies": {
     "sexylog": "0.0.3",
-    "muon-core": "7.0.22",
+    "muon-core": "7.0.37",
     "underscore": "*",
     "node-uuid": "*",
     "sockjs": "*",
-    "sockjs-client": "*"
+    "sockjs-client": "*",
+    "rsvp": "*"
   },
   "devDependencies": {
     "envify": "~1.2.1",
@@ -36,9 +37,11 @@
     "assert": "*",
     "babel": "^6.5.2",
     "babel-core": "^6.4.5",
-    "babel-loader": "^6.2.1",
     "mocha": "*",
-    "browserify": "*"
+    "browserify": "*",
+    "loose-envify":"*",
+    "json-markup": "1.0.0",
+    "jquery": "3.1.0"
   },
   "author": "Muon Core Ltd",
   "license": "Apache-2.0",
