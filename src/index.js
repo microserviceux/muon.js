@@ -67,9 +67,10 @@ module.exports.gateway = function(conf) {
                 
                 logger.info("ROUTING MESSAGE " + JSON.stringify(myData))
 
-                if (myData.channel_op == "closed") {
+                if (myData.channel_op == "closed" && internalChannel != undefined) {
                     logger.debug("SHUTDOWN CHANNEL BY CLIENT REQUEST")
-                    internalChannel.shutdown()
+                    internalChannel.send(Muon.Messages.shutdownMessage())
+                    internalChannel.close()
                     delete connections[channelId]
                 } else {
                     if (internalChannel == undefined) {
