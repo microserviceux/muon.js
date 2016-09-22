@@ -9,6 +9,8 @@ var sockjs_opts = {sockjs_url: "http://cdn.jsdelivr.net/sockjs/1.0.1/sockjs.min.
 
 module.exports.gateway = function(conf) {
     
+    logger.info("Starting muon.js gateway with config " + JSON.stringify(conf))
+    
     var muon = conf.muon
     var app=conf.app
     var port = conf.port || 9999
@@ -26,7 +28,7 @@ module.exports.gateway = function(conf) {
         });
         discovery.installHandlers(server, {prefix:'/discover'});
         transport.installHandlers(server, {prefix:'/transport'});
-        server.listen(9999, '0.0.0.0');
+        server.listen(port, '0.0.0.0');
     }
 
     discovery.on('connection', function(ws) {
@@ -56,7 +58,7 @@ module.exports.gateway = function(conf) {
             
             muon.infrastructure().getTransport().then(function(transport) {
                 var myData = JSON.parse(data);
-                console.dir(myData);
+                
                 var channelId = myData.channelId;
                 var targetService = myData["target_service"];
                 var protocol = myData.protocol;
@@ -76,8 +78,13 @@ module.exports.gateway = function(conf) {
                     if (internalChannel == undefined) {
                         logger.debug("Establishing new channel to " + targetService + protocol);
                         internalChannel = transport.openChannel(targetService, protocol);
-                        connections[channelId] = internalChannel;
+                        connections[channelId] = internalChannel
                         internalChannel.listen(function (msg) {
+                            if (msg.step == "ChannelShutdown" || msg.step == "ChannelFailure") {
+                                logger.debug("Channel id " + channelId + " is closed at the transport level. Removing from routing list")
+                                internalChannel.close()
+                                delete connections[channelId]
+                            }
                             logger.debug("Sending message back down ws for channel " + channelId);
                             msg["channelId"] = channelId;
                             ws.write(JSON.stringify(msg));
@@ -103,14 +110,16 @@ module.exports.gateway = function(conf) {
     });
 }
 
-module.exports.client = function() {
-    
+module.exports.client = function(conf) {
+    logger.info("Starting client with config " + JSON.stringify(conf))
+    console.dir(conf)
+    if (!conf) { conf = {} }
     //detect the browser setup. 
 
     // var port = window.location.port
     var host = window.location.hostname
 
-    var port = 9999
+    var port = conf.port || 9999
     
     var basews = "http://" + host + ":" + port
     

@@ -31,3 +31,8 @@ muon.subscribe("stream://awesomeservicequery/ticktock", function(data) {
     logger.info("ERROR " + JSON.stringify(err))
 })
 
+setInterval(function() {
+    muon.request("rpc://product/list", {"message": "BE AWESOME"}, function(resp) {
+        logger.info("GOT RPC DATA - " + JSON.stringify(resp))
+    });
+}, 1000)

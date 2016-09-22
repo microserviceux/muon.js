@@ -1,5 +1,5 @@
 
-all: clean muonjs
+all: run
 
 build:
 	npm install
