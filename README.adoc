@@ -8,7 +8,12 @@ See http://muoncore.io for more information on muon
 
 To test drive muon.js, you can run the demo application.  This starts a gateway, and demonstrates the capabilities coming from running muon in the browser.
 
-You'll need node.js installed so you can use npm: https://nodejs.org/en/download/
+## Dependencies
+
+You'll need two dependencies: 
+
+1.) node.js installed so you can use npm: https://nodejs.org/en/download/
+2.) RabbitMQ Running locally we suggest using  our  handy muon  development VM  here: https://github.com/muoncore/muon-dev-vm
 
 ```
 npm install
