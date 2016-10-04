@@ -8,8 +8,10 @@ See http://muoncore.io for more information on muon
 
 To test drive muon.js, you can run the demo application.  This starts a gateway, and demonstrates the capabilities coming from running muon in the browser.
 
+You'll need node.js installed so you can use npm: https://nodejs.org/en/download/
+
 ```
-npm
+npm install
 make
 make run
 ```
