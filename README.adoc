@@ -9,6 +9,7 @@ See http://muoncore.io for more information on muon
 To test drive muon.js, you can run the demo application.  This starts a gateway, and demonstrates the capabilities coming from running muon in the browser.
 
 ```
+npm
 make
 make run
 ```
