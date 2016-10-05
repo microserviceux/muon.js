@@ -17,7 +17,7 @@ muon.subscribe("stream://awesomeservicequery/ticktock", function(data) {
 }, function(dat) {
     var html = jsonMarkup(dat)
     $("#stream").html(html)
-    
+
     logger.info("Completed" +JSON.stringify(dat))
 }, function(err) {
     $("#stream").text("ERROR " + JSON.stringify(err))
@@ -39,4 +39,3 @@ muon.subscribe("stream://back-end/board/globalstate", {"user": "Hanna"}, functio
 
 
 setInterval(requestUsers, 2000)
-
