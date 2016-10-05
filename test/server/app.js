@@ -4,7 +4,7 @@ var jsonMarkup = require("json-markup")
 var muon = require("../../src/index.js").client({port:9898})
 //
 function requestUsers() {
-    muon.request("rpc://back-end/chat/list", {"user": "Hanna"}, function (resp) {
+    muon.request("rpc://corgi-email/notifications", {"user": "Hanna"}, function (resp) {
         var html = jsonMarkup(resp)
         $("#response").html("<div><h1>" + new Date() + "</h1>" +html + "</div>")
     });
