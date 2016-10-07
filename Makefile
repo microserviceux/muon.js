@@ -11,9 +11,10 @@ clean: build
 	rm -f src/muon.min.js
 
 muonjs: clean
-	./node_modules/browserify/bin/cmd.js -r ./src/index.js:muon-core > ./src/muon.js
-	 ./node_modules/minifier/index.js --output ./src/muon.min.js ./src/muon.js 
-	./node_modules/browserify/bin/cmd.js -r jquery -r json-markup -r ./src/index.js:muon-core > ./test/server/muon.js
+	mkdir dist
+	./node_modules/browserify/bin/cmd.js -r muon-core -r jquery -r json-markup -r ./src/index.js:muonjs > ./dist/muon.js
+	./node_modules/minifier/index.js --output ./dist/muon.min.js ./dist/muon.js
+	cp dist/muon.min.js test/server/muon.min.js
 
 run: muonjs
 	npm run dev
