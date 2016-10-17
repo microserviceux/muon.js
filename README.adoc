@@ -31,6 +31,14 @@ You will need to implement both a server side gateway, and a client browser appl
 
 ### Gateway
 
+A websocket based transport message router is required for muon instances in the browser to connect to. 
+
+A prebuilt gateway is available at https://github.com/muoncore/muonjs-gateway.js, and this is recommended for use.
+
+#### Building Your own Gateway
+
+This is an advanced task, for very tight control of the message flows from browser to server side.
+
 See the existing gateway.  The only currently supported server side setup is node.js with Express.
 
 ```
