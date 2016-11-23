@@ -1,6 +1,6 @@
 var _ = require("underscore");
 var bichannel = require('muon-core').channel();
-var uuid = require("node-uuid");
+var uuid = require("uuid");
 
 var SockJS = require("sockjs-client")
 var MuonSocketAgent = require("muon-core").MuonSocketAgent

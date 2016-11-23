@@ -20,13 +20,13 @@
     "browser"
   ],
   "dependencies": {
-    "sexylog": "0.0.3",
     "muon-core": "7.1.7",
-    "underscore": "*",
-    "node-uuid": "*",
+    "rsvp": "*",
+    "sexylog": "0.0.3",
     "sockjs": "*",
     "sockjs-client": "*",
-    "rsvp": "*"
+    "underscore": "*",
+    "uuid": "^3.0.0"
   },
   "devDependencies": {
     "minifier": "*",
@@ -40,7 +40,7 @@
     "babel-core": "^6.4.5",
     "mocha": "*",
     "browserify": "*",
-    "loose-envify":"*",
+    "loose-envify": "*",
     "json-markup": "1.0.0",
     "jquery": "3.1.0"
   },
