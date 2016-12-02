@@ -1,6 +1,6 @@
 {
   "name": "muonjs",
-  "version": "7.1.7",
+  "version": "7.1.9",
   "description": "Muon in the Browser, Requires a functional muon.js gateway",
   "main": "src/index.js",
   "scripts": {
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/microserviceux/muon.js.git"
+    "url": "git+ssh://git@github.com/muoncore/muon.js.git"
   },
   "keywords": [
     "Muon",
@@ -21,7 +21,7 @@
   ],
   "dependencies": {
     "sexylog": "0.0.3",
-    "muon-core": "7.1.7",
+    "muon-core": "7.1.9",
     "underscore": "*",
     "node-uuid": "*",
     "sockjs": "*",
@@ -45,9 +45,9 @@
     "jquery": "3.1.0"
   },
   "author": "Muon Core Ltd",
-  "license": "Apache-2.0",
+  "license": "AGPLv2",
   "bugs": {
-    "url": "https://github.com/microserviceux/muon.js/issues"
+    "url": "https://github.com/muoncore/muon.js/issues"
   },
-  "homepage": "https://github.com/microserviceux/muon.js#readme"
+  "homepage": "https://github.com/muoncore/muon.js#readme"
 }
