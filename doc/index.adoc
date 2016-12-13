@@ -1,4 +1,21 @@
-# Muon.js
+---
+layout: documentation
+---
+:title: Muon.js
+:date: 2015-01-05 11:40
+:comments: true
+:sharing: true
+:source-highlighter: pygments
+:toc: right
+:toc-title: Muon.js
+:toclevels: 6
+
+:includedir: .
+ifdef::env-doc[]
+:includedir: submodules/muonjs/doc
+endif::[]
+
+## Muon.js
 
 [NOTE]
 Work in progress....
