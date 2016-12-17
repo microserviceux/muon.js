@@ -17,5 +17,16 @@ endif::[]
 
 ## Muon.js
 
-[NOTE]
-Work in progress....
+Muon.js takes Muon Node and adds a websockets based transport and discovery. These connect to the
+link:/submodules/muonjs-gateway/doc[MuonJS Gateway] service.
+
+This enables Muon to run within the browser and interact with back end services with the full
+set of protocols available to server side microservices.
+
+In order to use Muon in the browser, you therefore need to :-
+
+* Set up the MuonJS gateway, connected to the target Muon network.
+*
+
+### Setup
+
