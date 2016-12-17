@@ -27,10 +27,47 @@ set of protocols available to server side microservices.
 
 In order to use Muon in the browser, you therefore need to :-
 
-* Set up the MuonJS gateway, connected to the target Muon network.
+* Set up the MuonJS gateway, connected to the target Muon network. See link:/submodules/muonjs-gateway/docs[MuonJS Gateway] for more information
 * Import muon.js into your browser context (either directly, or more likely using npm with webpack or similar)
 * Instantiate a Muon object in your browser, which fronts a websocket connection to the gateway.
 
+WARNING: The rest of this document assumes you have a running MuonJS Gateway
+
 ### Setup
 
-See the MuonJS Gateway documentation for setting this up.
+Broadly, there are two options for integrating MuonJS into your browser code.
+
+* Directly linking via a script tag
+* Install via NPM and incorporate via a javascript packer.
+
+We recommend using a full build system.
+
+#### Install via NPM
+
+```bash
+npm install muon-core
+```
+
+With this installed, you then need to have some form of front end build system in place.
+
+You can use the new link:https://github.com/muoncore/molecule/tree/rebuild[Molecule project] as an example.
+
+Once you have muon available in your browser context, you need to instantiate and use it.
+
+```javascript
+var Muon = require("muonjs")          //<1>
+var muon = Muon.client({port: 9898})  //<2>
+
+muon.replay("my-stream", {"stream-type": "hot"}, (event) => { //<3>
+    console.dir(event)
+}, (error) => {
+    console.log("Disconnected from event store", error)
+}, (complete) => {
+    console.log("Stream completed (except that it's hot, so this will never execute...")
+})
+```
+<1> Import MuonJS using require.js provided by webpack etc.
+<1> Instantiate a MuonJS client, connecting to the origin server on the default port 9898
+<1> Begin an event replay. This will connect to the photon service in the back end system.
+
+Once you have this working, MuonJS is the same code as Muon Node, and so will work the same.
