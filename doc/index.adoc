@@ -15,6 +15,8 @@ ifdef::env-doc[]
 :includedir: submodules/muonjs/doc
 endif::[]
 
+TIP: This document is maintained at https://github.com/muoncore/muon.js Please submit issues at that repository.
+
 ## Muon.js
 
 Muon.js takes Muon Node and adds a websockets based transport and discovery. These connect to the
@@ -26,7 +28,9 @@ set of protocols available to server side microservices.
 In order to use Muon in the browser, you therefore need to :-
 
 * Set up the MuonJS gateway, connected to the target Muon network.
-*
+* Import muon.js into your browser context (either directly, or more likely using npm with webpack or similar)
+* Instantiate a Muon object in your browser, which fronts a websocket connection to the gateway.
 
 ### Setup
 
+See the MuonJS Gateway documentation for setting this up.
