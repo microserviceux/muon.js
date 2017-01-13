@@ -19,7 +19,7 @@ module.exports.gateway = function(conf) {
 
     var discovery = require('sockjs').createServer(sockjs_opts);
     var transport = require('sockjs').createServer(sockjs_opts);
-    
+
     if (app == undefined) {
         logger.info("No existing application passed in, will create a new http endpoint on port " + port)
         var server = http.createServer();
@@ -32,19 +32,27 @@ module.exports.gateway = function(conf) {
     }
 
     discovery.on('connection', function(ws) {
+
+        function sendDiscovery() {
+            ws.send(JSON.stringify([
+
+                {
+                    identifier:"simples"
+                }
+            ]), function() {  })
+        }
+
         logger.info("Discovery connected")
         ws.on('data', function(message) {
-            console.log("DUISCOVERY GOT DATA...." + JSON.stringify(message));
+            logger.info("Discovery received data: " + JSON.stringify(message));
         });
-        var interval = setInterval(function() {
-            // ws.send(JSON.stringify({
-            //     identifier:"simples"
-            // }), function() {  })
-        }, 2000);
+        var interval = setInterval(sendDiscovery, 2000);
         ws.on("close", function() {
             console.log("websocket connection close")
             clearInterval(interval);
         })
+
+        sendDiscovery()
     });
 
     transport.on("connection", function(ws) {
@@ -61,11 +69,17 @@ module.exports.gateway = function(conf) {
                 
                 var channelId = myData.channelId;
                 var targetService = myData["target_service"];
+
                 var protocol = myData.protocol;
                 // TODO, this should be an optional override.
                 myData.origin_service = muon.infrastructure().config.serviceName;
 
                 var internalChannel = connections[channelId];
+
+                if (targetService == "n/a" && !internalChannel) {
+                    logger.debug("Got Channel Shutdown for non existent channel, discarding" + JSON.stringify(myData))
+                    return
+                }
                 
                 logger.info("ROUTING MESSAGE " + JSON.stringify(myData))
 
@@ -98,9 +112,7 @@ module.exports.gateway = function(conf) {
         });
     
         ws.on("close", function() {
-            // TODO, destroy the channel connections that hook into this.
-            console.log("websocket connection close")
-
+            logger.debug("Client has disconnected")
             _.each(connections, function(conn) {
                 conn.send(Muon.Messages.shutdownMessage())
                 conn.close()
@@ -108,6 +120,11 @@ module.exports.gateway = function(conf) {
             connections = null
         })
     });
+
+    return {
+        shutdown: function() {
+        }
+    }
 }
 
 module.exports.client = function(conf) {

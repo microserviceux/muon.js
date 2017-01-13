@@ -1,6 +1,6 @@
 {
   "name": "muonjs",
-  "version": "7.1.10",
+  "version": "7.1.16",
   "description": "Muon in the Browser, Requires a functional muon.js gateway",
   "main": "src/index.js",
   "scripts": {
@@ -21,7 +21,7 @@
   ],
   "dependencies": {
     "sexylog": "0.0.3",
-    "muon-core": "7.1.10",
+    "muon-core": "7.1.16",
     "underscore": "*",
     "node-uuid": "*",
     "sockjs": "*",
@@ -29,6 +29,7 @@
     "rsvp": "*"
   },
   "devDependencies": {
+    "async-rq":"*",
     "minifier": "*",
     "envify": "~1.2.1",
     "babel-preset-react": "^6.5.0",
