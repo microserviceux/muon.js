@@ -1,6 +1,6 @@
 {
   "name": "muonjs",
-  "version": "7.1.23",
+  "version": "7.2.6",
   "description": "Muon in the Browser, Requires a functional muon.js gateway",
   "main": "src/index.js",
   "scripts": {
@@ -29,7 +29,7 @@
     "rsvp": "*"
   },
   "devDependencies": {
-    "async-rq":"*",
+    "async-rq": "*",
     "minifier": "*",
     "envify": "~1.2.1",
     "babel-preset-react": "^6.5.0",
@@ -41,7 +41,7 @@
     "babel-core": "^6.4.5",
     "mocha": "*",
     "browserify": "*",
-    "loose-envify":"*",
+    "loose-envify": "*",
     "json-markup": "1.0.0",
     "jquery": "3.1.0"
   },
