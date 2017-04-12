@@ -1,7 +1,6 @@
 # Change Log
 
-## [Unreleased](https://github.com/muoncore/muon.js/tree/HEAD)
-
+## [v7.2.6](https://github.com/muoncore/muon.js/tree/v7.2.6) (2017-04-12)
 **Closed issues:**
 
 - make default target should run npm install. [\#2](https://github.com/muoncore/muon.js/issues/2)
