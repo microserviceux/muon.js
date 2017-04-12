@@ -21,7 +21,7 @@
   ],
   "dependencies": {
     "sexylog": "0.0.3",
-    "muon-core": "7.1.23",
+    "muon-core": "7.2.6",
     "underscore": "*",
     "node-uuid": "*",
     "sockjs": "*",
