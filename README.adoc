@@ -88,3 +88,6 @@ setInterval(function(){
 
 You will need to process this into something you can import, using browserify or webpack.
 
+
+
+image:https://badges.greenkeeper.io/muoncore/muon.js.svg?token=05059bcad8fce92462f51cc11ee9efc9da0872a92405242631cdb2cd45577348&ts=1493731187925[link="https://greenkeeper.io/"]
