@@ -31,7 +31,7 @@
   "devDependencies": {
     "async-rq": "*",
     "minifier": "*",
-    "envify": "~1.2.1",
+    "envify": "~4.0.0",
     "babel-preset-react": "^6.5.0",
     "babel-preset-es2015": "*",
     "babelify": "^7.2.0",
@@ -42,8 +42,8 @@
     "mocha": "*",
     "browserify": "*",
     "loose-envify": "*",
-    "json-markup": "1.0.0",
-    "jquery": "3.1.0"
+    "json-markup": "1.1.0",
+    "jquery": "3.2.1"
   },
   "author": "Muon Core Ltd",
   "license": "AGPLv2",
