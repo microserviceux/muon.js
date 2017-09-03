@@ -1,0 +1,23 @@
+# MuonJS
+
+This example shows using muon.js from the browserified output.
+
+First, get the starter project running, this runs a service called "muonjs-gateway". This runs a websocket server that is used to manage message routing. The gateway acts as a messaging reverse proxy, enabling your browser to open muon channels to other services in the back end system by logical name.
+
+## Running
+
+Run via `make install; make`
+
+Visit http://localhost:8080
+
+See index.html to see the regular muon javascript api being used. Try some commands
+
+The full muon api is available to you (bar service discovery, which is being delegated server side). You can introspect, use the various protocols etc.
+
+For browserify, the rpc and reactive streams protocols are bundled into the muon.js file. Others will need to be added externally.
+
+Try running another muon service on the same discovery as the gateway, then in the browser console run
+
+----
+muon.introspect("your-service", function(report) {  console.dir(report) })
+----

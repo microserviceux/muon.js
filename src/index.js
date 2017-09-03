@@ -159,5 +159,8 @@ module.exports.client = function(conf) {
         }
     }
     
-    return Muon.api(serviceName, infrastructure)
+    var muon = Muon.api(serviceName, infrastructure)
+    require("muon-stack-rpc").create(muon)
+    require("muon-stack-reactive-streams").create(muon)
+    return muon;
 }
