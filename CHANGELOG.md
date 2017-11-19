@@ -1,5 +1,13 @@
 # Change Log
 
+## [Unreleased](https://github.com/muoncore/muon.js/tree/HEAD)
+
+[Full Changelog](https://github.com/muoncore/muon.js/compare/v7.2.6...HEAD)
+
+**Closed issues:**
+
+- Hardcodes http, should use the window protocol [\#4](https://github.com/muoncore/muon.js/issues/4)
+
 ## [v7.2.6](https://github.com/muoncore/muon.js/tree/v7.2.6) (2017-04-12)
 **Closed issues:**
 
