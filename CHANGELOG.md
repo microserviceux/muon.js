@@ -1,8 +1,7 @@
 # Change Log
 
-## [Unreleased](https://github.com/muoncore/muon.js/tree/HEAD)
-
-[Full Changelog](https://github.com/muoncore/muon.js/compare/v7.2.6...HEAD)
+## [v7.3.1](https://github.com/muoncore/muon.js/tree/v7.3.1) (2017-11-20)
+[Full Changelog](https://github.com/muoncore/muon.js/compare/v7.2.6...v7.3.1)
 
 **Closed issues:**
 
