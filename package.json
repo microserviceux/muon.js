@@ -1,11 +1,12 @@
 {
   "name": "muonjs",
-  "version": "7.3.0-78",
+  "version": "7.3.0-79",
   "description": "Muon in the Browser, Requires a functional muon.js gateway",
   "main": "src/index.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha --recursive -R xunit-file test/",
-    "dev": "node test/server/server.js"
+    "dev": "node test/server/server.js",
+    "build": "echo done"
   },
   "repository": {
     "type": "git",
