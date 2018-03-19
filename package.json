@@ -21,7 +21,7 @@
   ],
   "dependencies": {
     "muon-core": "^7.3.0-76",
-    "muon-stack-reactive-streams": "0.0.2-48",
+    "muon-stack-reactive-streams": "0.0.2-63",
     "muon-stack-rpc": "0.0.2-34",
     "node-uuid": "*",
     "rsvp": "*",
