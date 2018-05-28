@@ -2,34 +2,34 @@
 all: run
 
 build:
-	npm install
+	yarn
+	tsc
 
-clean: build
+clean:
 	rm -rf dist
+	rm -rf browserdist
 	rm -f test/server/muon.js
-	rm -f src/muon.js
-	rm -f src/muon.min.js
 
-muonjs: clean
-	mkdir dist
-	./node_modules/browserify/bin/cmd.js -r muon-core -r jquery -r json-markup -r ./src/index.js:muonjs > ./dist/muon.js
-	#./node_modules/minifier/index.js --output ./dist/muon.min.js ./dist/muon.js
-	cp dist/muon.js test/server/muon.min.js
+muonjs: clean build
+	mkdir browserdist
+	./node_modules/browserify/bin/cmd.js -r muon-core -r jquery -r json-markup -r ./dist/MuonClient.js:muonjs > ./browserdist/muon.js
+	#./node_modules/minifier/index.js --output ./browserdist/muon.min.js ./browserdist/muon.js
+	cp browserdist/muon.js test/server/muon.min.js
 
 run: muonjs
-	npm run dev
+	yarn dev
 
 publish:
 ifndef VERSION
 	$(error VERSION is undefined for NPM release)
 endif
-	npm install
+	yarn
 	npm version --no-git-tag-version $(VERSION)
 	npm publish
 
 publish-snapshot:
-	npm install
-	npm run build
+	yarn
+	yarn build
 	npm version --no-git-tag-version prerelease
 	npm publish --tag next
 	git add package.json
