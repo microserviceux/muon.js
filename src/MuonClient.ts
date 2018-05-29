@@ -126,7 +126,7 @@ export class MuonClient {
     ws.onmessage((ev) => {
       if (ev.type == "discovery") {
         this.discovery.handleDiscoveryMessage(ev)
-      } else {
+      } else if (ev.type == "transport") {
         this.transport.handleTransportMessage(ev)
       }
     })
