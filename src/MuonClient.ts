@@ -1,4 +1,5 @@
 import * as WebSocket from "ws";
+import * as BrowserWebsocket from "browser-websocket";
 import * as Muon from "muon-core"
 import WsDiscovery from "./WsDiscovery";
 import WsTransport from "./WsTransport";
@@ -10,16 +11,99 @@ export async function client(conf: MuonConf): Promise<any> {
     conf.url = "wss://ws.muoncore.io"
   }
 
-  // TODO, don't use the WS directly in MuonClient. add a system to auto re-create the WS on failure
+  let ws = new WebSocketProxy(conf)
+  await ws.connect()
+  console.log("CONNECTING TO " + conf.url)
 
-  return new Promise<any>((res, rej) => {
-    console.log("CONNECTING TO " + conf.url)
-    let ws = new WebSocket(conf.url)
+  return new MuonClient(ws, conf).muon()
+}
 
-    ws.on("open", (ev) => {
-      res(new MuonClient(ws, conf).muon())
+
+export class WebSocketProxy {
+
+  private ws: any
+  private msgcallback: (msg: Message) => void
+  private connectcallback: () => void
+
+
+  constructor(readonly conf: MuonConf) {}
+
+  connect(): Promise<void> {
+    return new Promise(res => {
+      try {
+        let p = process as any
+
+        if (p.browser) {
+          this.ws = new BrowserWebsocket(this.conf.url)
+        } else {
+          this.ws = new WebSocket(this.conf.url) as any
+        }
+
+        this.ws.on("close", () => {
+          console.log("WS Closed, reconnecting")
+          setTimeout(() => {
+            this.connect()
+          }, 200)
+        })
+
+        this.ws.on("error", () => {
+          // eaten, will auto reconnect on close.
+        })
+
+        this.ws.on("open", () => {
+          console.log("Connected to ws")
+          this.setupCallback()
+          if (this.connectcallback != null) {
+            this.connectcallback()
+          }
+          res()
+        })
+      } catch (e) {
+        console.log("Failed during ws init, back off connection")
+        setTimeout(() => {
+          this.connect()
+        }, 200)
+      }
     })
-  })
+  }
+
+  onreconnect(exec:() => void) {
+    this.connectcallback = exec
+  }
+
+  onmessage(exec:(msg: Message) => void) {
+    this.msgcallback = exec
+    this.setupCallback()
+  }
+
+  close() {
+    this.ws.close()
+  }
+
+  private setupCallback() {
+    if (this.ws != null && this.msgcallback !=  null) {
+      this.ws.on("message", (ev) => {
+        let msg: Message
+        const p = process as any
+        if (p.browser) {
+          msg = JSON.parse(ev.data);
+        } else {
+          msg = JSON.parse(ev.toString());
+        }
+
+        this.msgcallback(msg)
+      })
+    }
+  }
+
+  send(message: Message) {
+    const p = process as any
+    if (p.browser) {
+      this.ws.emit(JSON.stringify(message))
+    } else {
+      this.ws.send(JSON.stringify(message))
+    }
+  }
 }
 
 export class MuonConf {
@@ -35,21 +119,23 @@ export class MuonClient {
   private transport: WsTransport
   private infra: any
 
-  constructor(readonly ws: WebSocket, readonly conf: MuonConf) {
+  constructor(readonly ws: WebSocketProxy, readonly conf: MuonConf) {
     this.discovery = new WsDiscovery(this)
     this.transport = new WsTransport(this)
 
-    ws.on("message", (ev) => {
-      let msg = JSON.parse(ev.toString()) as Message
-      if (msg.type == "discovery") {
-        this.discovery.handleDiscoveryMessage(msg)
+    ws.onmessage((ev) => {
+      if (ev.type == "discovery") {
+        this.discovery.handleDiscoveryMessage(ev)
       } else {
-        this.transport.handleTransportMessage(msg)
+        this.transport.handleTransportMessage(ev)
       }
     })
 
-    ws.on("close", (ev) => {
-      console.log("Closed")
+    ws.onreconnect(() => {
+      this.discovery.doAdvertise()
+
+      //TODO, break the channels?
+
     })
 
     let serviceName = "browser-client"
@@ -95,7 +181,7 @@ export class MuonClient {
 
 
   send(message: Message) {
-    this.ws.send(JSON.stringify(message))
+    this.ws.send(message)
   }
 
   infrastructure() {

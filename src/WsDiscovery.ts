@@ -3,6 +3,8 @@ import {Message, MuonClient} from "./MuonClient";
 
 export default class WsDiscovery {
 
+  private localService: ServiceDescriptor
+
   private servicesNames: Array<string>
   private serviceInfo: Map<string, ServiceDescriptor> = new Map()
 
@@ -15,12 +17,8 @@ export default class WsDiscovery {
         let data = this.muon.decode(message.data)
         this.servicesNames = data
 
-        console.dir(this.servicesNames)
-
         break;
       case "refreshservice":    //loading details of a service by tag
-
-        console.log("WOOT BUNNY" + message)
 
         let descriptor = this.muon.decode(message.data)
         this.serviceInfo.set(descriptor.identifier, descriptor)
@@ -37,10 +35,15 @@ export default class WsDiscovery {
   }
 
   advertiseLocalService(serviceDescriptor: ServiceDescriptor) {
+    this.localService = serviceDescriptor
+    this.doAdvertise()
+  }
+
+  doAdvertise() {
     this.muon.send({
       type: "discovery",
       step: "advertise",
-      data: this.muon.encode(serviceDescriptor)
+      data: this.muon.encode(this.localService)
     })
   }
 

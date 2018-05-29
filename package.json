@@ -1,6 +1,6 @@
 {
   "name": "muonjs",
-  "version": "7.3.0-83",
+  "version": "8.0.9",
   "description": "Muon in the Browser, Requires a functional muon.js gateway",
   "main": "dist/MuonClient.js",
   "scripts": {
@@ -49,6 +49,8 @@
   "dependencies": {
     "@types/node": "^9.6.2",
     "@types/ws": "^4.0.2",
+    "browser-websocket": "^2.2.0",
+    "isomorphic-ws": "^4.0.1",
     "muon-core": "^7.3.0-77",
     "muon-stack-reactive-streams": "0.0.2-63",
     "muon-stack-rpc": "0.0.2-34",
@@ -59,13 +61,12 @@
     "@types/chai": "^4.1.2",
     "@types/jest": "^22.2.2",
     "@types/sinon": "^4.3.1",
-    "typescript": "^2.8.1",
     "assert": "*",
     "async-rq": "*",
     "babel": "^6.5.2",
     "babel-core": "^6.4.5",
-    "babel-plugin-transform-runtime": "^6.23.0",
     "babel-jest": "^22.4.3",
+    "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-es2015": "*",
     "babel-preset-react": "^6.5.0",
     "babelify": "^7.2.0",
@@ -80,7 +81,8 @@
     "minifier": "*",
     "rsvp": "*",
     "sinon": "^4.5.0",
-    "ts-jest": "^22.4.2"
+    "ts-jest": "^22.4.2",
+    "typescript": "^2.8.1"
   },
   "author": "Muon Core Ltd",
   "license": "Apache2",

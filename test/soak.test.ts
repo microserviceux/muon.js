@@ -50,7 +50,10 @@ describe("Gateway tests", function () {
 
   it("functional check", async function () {
 
-    let clientmuon = await client({port: 56078})
+    let clientmuon = await client({
+      url: "wss://ws.cloud.daviddawson.me",
+      serviceName: "functional-check"
+    })
 
 
     require("muon-stack-rpc").create(clientmuon)
