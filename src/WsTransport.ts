@@ -24,10 +24,7 @@ export default class WsTransport {
 
         if (channel == null) {
 
-          console.log("Opening new channel from server to local ")
           let inbound = this.muon.decode(message.data)
-
-          console.log(inbound)
 
           let chan = this.muon.infrastructure().serverStacks.openChannel(inbound.protocol)
 
@@ -59,7 +56,6 @@ class TransportChannel {
   }
 
   shutdown() {
-    console.log("[***** TRANSPORT *****] CHANNEL POISONED");
 
     this.sendToGateway({
       correlationId: this.channelId,

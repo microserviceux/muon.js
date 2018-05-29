@@ -55,9 +55,6 @@ export default class WsDiscovery {
     if (this.servicesNames != null) {
 
       if (this.serviceInfo.size == this.servicesNames.length) {
-
-        console.log(Array.from(this.serviceInfo.values()))
-
         callback(new Disco(Array.from(this.serviceInfo.values())))
       } else {
         setTimeout(() => {
