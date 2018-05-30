@@ -78,7 +78,7 @@ class Disco {
 
   constructor(readonly serviceList) {}
 
-  async findServiceWithTags(tags): Promise<ServiceDescriptor[]> {      7
+  findServiceWithTags(tags): Promise<ServiceDescriptor[]> {
     // this is now a promise. make it work?
 
     //TODO, this would work much better as a Promise. requires the interface in muon core to be updated to match that.
