@@ -1,7 +1,7 @@
 {
   "name": "muonjs",
-  "version": "8.0.12",
-  "description": "Muon in the Browser, Requires a functional muon.js gateway",
+  "version": "8.0.15",
+  "description": "Muon, javascript edition",
   "main": "dist/MuonClient.js",
   "scripts": {
     "test": "jest",
@@ -54,12 +54,13 @@
     "muon-core": "^7.3.0-77",
     "muon-stack-reactive-streams": "0.0.2-63",
     "muon-stack-rpc": "0.0.2-34",
+    "ts-node": "^7.0.1",
     "uuid": "^3.1.0",
     "ws": "^5.1.1"
   },
   "devDependencies": {
     "@types/chai": "^4.1.2",
-    "@types/jest": "^22.2.2",
+    "@types/jest": "^23.3.1",
     "@types/sinon": "^4.3.1",
     "assert": "*",
     "async-rq": "*",
@@ -74,11 +75,12 @@
     "chai": "^4.1.2",
     "envify": "~1.2.1",
     "express": "^4.4.5",
-    "jest": "^22.4.3",
+    "jest": "^23.5.0",
     "jquery": "3.1.0",
     "json-markup": "1.0.0",
     "loose-envify": "*",
     "minifier": "*",
+    "node-tcp-proxy": "^0.0.13",
     "rsvp": "*",
     "sinon": "^4.5.0",
     "ts-jest": "^22.4.2",

@@ -4,6 +4,8 @@ import * as RQ from "async-rq"
 
 import {client} from "../src/MuonClient"
 
+import * as proxy from "node-tcp-proxy"
+
 describe("Gateway tests", function () {
 
 //    this.timeout(3000000);
@@ -12,9 +14,9 @@ describe("Gateway tests", function () {
 
   let muon
   let muon2
-  let gw
+  let prox
 
-  beforeAll(function () {
+  beforeAll(async function () {
     jest.setTimeout(3000000)
     // global.window = {
     //     location: {
@@ -25,11 +27,8 @@ describe("Gateway tests", function () {
     //
     // muon = muoncore.create("gateway-testing", amqpurl);
     // require("muon-stack-rpc").create(muon)
-    // muon.handle('/tennis', function (event, respond) {
-    //     console.log('*****  muon://service/tennis: muoncore-test.js *************************************************');
-    //     console.log('rpc://service/tennis server responding to event=' + JSON.stringify(event));
-    //     respond("pong");
-    // });
+
+
     //
     // muon2 = muoncore.create("target-service-muonjs", amqpurl);
     // require("muon-stack-rpc").create(muon2)
@@ -42,27 +41,40 @@ describe("Gateway tests", function () {
     // gw = require("../src/index").gateway({ port: 56078, muon: muon})
   });
 
-  afterAll(function () {
-    // if (gw) gw.shutdown()
-    // if (muon) muon.shutdown();
-    // if (muon2) muon2.shutdown();
+  afterEach(function () {
+    if (muon) muon.shutdown();
+    if (muon2) muon2.shutdown();
+    if (prox) prox.end();
   });
 
   it("functional check", async function () {
 
-    let clientmuon = await client({
-      url: "wss://ws.cloud.daviddawson.me",
-      serviceName: "functional-check"
+    muon = await client({
+      url: "ws://localhost:8092",
+      serviceName: "myservice",
+      tags: []
+    })
+    require("muon-stack-rpc").create(muon)
+
+    muon.handle('/tennis', function (event, respond) {
+      console.log('*****  muon://service/tennis: muoncore-test.js *************************************************');
+      console.log('rpc://service/tennis server responding to event=' + JSON.stringify(event));
+      respond("pong");
+    });
+
+    muon2 = await client({
+      url: "ws://localhost:8092",
+      serviceName: "functional-check",
+      tags: []
     })
 
+    require("muon-stack-rpc").create(muon2)
 
-    require("muon-stack-rpc").create(clientmuon)
-
-    let respo = await clientmuon.introspect("photonlite")
+    let respo = await muon2.introspect("myservice")
     console.dir(respo)
 
 
-    let response = await clientmuon.request('rpc://photonlite/stats', "ping");
+    let response = await muon2.request('rpc://myservice/tennis', "ping");
 
     console.log("rpc://example-client server response received! response=" + JSON.stringify(response));
     console.log("muon promise.then() asserting response...");
@@ -71,6 +83,50 @@ describe("Gateway tests", function () {
     expect(response.body).to.eq("pong")
 
   });
+
+  it ("reconnect test", async () => {
+
+    prox = proxy.createProxy(8091, "localhost", "8092", {quiet: false, tls: false})
+
+    muon = await client({
+      url: "ws://localhost:8091",
+      serviceName: "myservice",
+      tags: []
+    })
+    require("muon-stack-rpc").create(muon)
+
+    muon.handle('/tennis', function (event, respond) {
+      console.log('*****  muon://service/tennis: muoncore-test.js *************************************************');
+      console.log('rpc://service/tennis server responding to event=' + JSON.stringify(event));
+      respond("pong");
+    });
+
+    muon2 = await client({
+      url: "ws://localhost:8092",
+      serviceName: "functional-check",
+      tags: []
+    })
+
+    require("muon-stack-rpc").create(muon2)
+
+    await pause(1000)
+
+    console.log("Killing net connection to gateway")
+    prox.end()
+
+    await pause(12000)
+
+    console.log("Restarting net connection")
+    prox = proxy.createProxy(8091, "localhost", "8092", {quiet: false, tls: false})
+
+    await pause(1500)
+
+    let response = await muon2.request('rpc://myservice/tennis', "ping");
+    console.log("Response is " + JSON.stringify(response))
+    expect(response, "request response is undefined");
+    expect(response.body).to.eq("pong")
+
+  })
   // it("soak test", function (done) {
   //   let clientmuon = require("../src/index").client({port: 56078})
   //
@@ -121,33 +177,10 @@ describe("Gateway tests", function () {
   // })
 });
 
-
-function delay(milliseconds) {
-  return function requestor(callback, value) {
-    let timeout_id = setTimeout(function () {
-      return callback(value);
-    }, milliseconds);
-    return function cancel(reason) {
-      return clearTimeout(timeout_id);
-    };
-  };
-}
-
-function requestFactory(muon) {
-  return function request(done, val) {
-    console.log('Requesting data ');
-    let then = new Date().getTime()
-    let promise = muon.request('rpc://env-node/string-response', {"search": "red"});
-    promise.then(function (event) {
-      let now = new Date().getTime()
-      console.log("Response is " + JSON.stringify(event))
-      console.log("Latency is " + (now - then))
-      done()
-    }).catch(function (error) {
-      console.dir("FAILED< BOOO " + error)
-      done()
-    })
-  }
+async function pause(millis: number) {
+  return new Promise(done => {
+    setTimeout(done, millis)
+  })
 }
 
 function subscribe(muon, end) {

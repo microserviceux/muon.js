@@ -1,5 +1,6 @@
 import {Message, MuonClient} from "./MuonClient";
 import * as uuid from "uuid"
+import log from "./log";
 const bichannel = require('muon-core').channel();
 
 export default class WsTransport {
@@ -36,8 +37,15 @@ export default class WsTransport {
 
         channel.sendToChannel(message)
         break;
+      case "shutdown":
+        let chan = this.channels.get(message.correlationId)
+        if (chan != null) {
+          this.channels.delete(message.correlationId)
+          chan.sendToChannel(message)
+        }
+        break
       default:
-        console.log("Unknown message " + JSON.stringify(message))
+        log.info("Unknown message " + JSON.stringify(message))
     }
   }
 }
@@ -77,7 +85,6 @@ class TransportChannel {
     }
 
     chan.listen((msg) => {
-      console.log("[***** TRANSPORT *****] received outbound event " + JSON.stringify(msg));
       if (msg == "poison") {
         this.shutdown();
         return;
@@ -96,7 +103,6 @@ class TransportChannel {
     this.bichannel = bichannel.create("browser-transport-left");
 
     this.bichannel.rightConnection().listen((msg) => {
-      // console.log("[***** TRANSPORT *****] received outbound event " + JSON.stringify(msg));
       if (msg == "poison") {
         this.shutdown();
         return;
@@ -117,11 +123,10 @@ class TransportChannel {
 
   private sendToGateway(msg: Message) {
     try {
-      // console.log("[***** TRANSPORT *****] Sending event outbound to browser transport " + JSON.stringify(msg));
       this.muon.send(msg)
     } catch (err) {
-      console.log("[***** TRANSPORT *****] Error received");
-      console.dir(err)
+      log.err("[***** TRANSPORT *****] Error received");
+      log.err(JSON.stringify(err))
     }
   }
 }

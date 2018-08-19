@@ -78,16 +78,16 @@ class Disco {
 
   constructor(readonly serviceList) {}
 
-  findServiceWithTags(tags): Promise<ServiceDescriptor[]> {
+  findServiceWithTags(tags): ServiceDescriptor {
     // this is now a promise. make it work?
 
     //TODO, this would work much better as a Promise. requires the interface in muon core to be updated to match that.
-    return this.serviceList.find((svc) => {
-      let matchingTags = svc.tags.filter((tag) => {
+    return Array.from(this.serviceList).find((svc) => {
+      let matchingTags = (svc as ServiceDescriptor).tags.filter((tag) => {
         return tags.indexOf(tag) >= 0
       })
       return matchingTags.length == tags.length
-    })
+    }) as ServiceDescriptor
   }
 }
 

@@ -3,6 +3,7 @@ import * as BrowserWebsocket from "browser-websocket";
 import * as Muon from "muon-core"
 import WsDiscovery from "./WsDiscovery";
 import WsTransport from "./WsTransport";
+import log from "./log";
 
 
 export async function client(conf: MuonConf): Promise<any> {
@@ -13,8 +14,7 @@ export async function client(conf: MuonConf): Promise<any> {
 
   let ws = new WebSocketProxy(conf)
   await ws.connect()
-  console.log("CONNECTING TO " + conf.url)
-
+  log.info("now connected!")
   return new MuonClient(ws, conf).muon()
 }
 
@@ -24,9 +24,17 @@ export class WebSocketProxy {
   private ws: any
   private msgcallback: (msg: Message) => void
   private connectcallback: () => void
-
+  private backoffVal = 200
 
   constructor(readonly conf: MuonConf) {}
+
+  backoff(): number {
+    let back = this.backoffVal
+    if (this.backoffVal < 6000) {
+      this.backoffVal *= 2
+    }
+    return back
+  }
 
   connect(): Promise<void> {
     return new Promise(res => {
@@ -40,10 +48,11 @@ export class WebSocketProxy {
         }
 
         this.ws.on("close", () => {
-          console.log("WS Closed, reconnecting")
+          let back = this.backoff()
+          log.info(`WS Closed, reconnecting in ${back}ms`)
           setTimeout(() => {
-            this.connect()
-          }, 200)
+            this.connect().then(res)
+          }, back)
         })
 
         this.ws.on("error", () => {
@@ -51,7 +60,8 @@ export class WebSocketProxy {
         })
 
         this.ws.on("open", () => {
-          console.log("Connected to ws")
+          log.info("Connected to ws")
+          this.backoffVal = 200
           this.setupCallback()
           if (this.connectcallback != null) {
             this.connectcallback()
@@ -59,7 +69,8 @@ export class WebSocketProxy {
           res()
         })
       } catch (e) {
-        console.log("Failed during ws init, back off connection")
+        log.info("Failed during ws init, back off connection")
+        log.info(e)
         setTimeout(() => {
           this.connect()
         }, 200)
@@ -132,6 +143,7 @@ export class MuonClient {
     })
 
     ws.onreconnect(() => {
+      log.info("Reconnected, advertising?")
       this.discovery.doAdvertise()
 
       //TODO, break the channels?
@@ -154,9 +166,11 @@ export class MuonClient {
         return this
       },
       serverStacks: stacks,
-      shutdown: function () {
-        //shutdown stuff...
-      }
+      shutdown: () => {
+        log.info("Muon Client Shutdown")
+        this.shutdown()
+      },
+      client: this
     }
 
     this.muonInstance = Muon.api(serviceName, this.infra)
@@ -171,12 +185,12 @@ export class MuonClient {
   }
 
   onError(cb) {
-    console.log("Error callback passed into browser transport, this is not currently used and will be ignored")
+    // log.info("Error callback passed into browser transport, this is not currently used and will be ignored")
     // upstreamCallback = cb;
   }
 
   shutdown() {
-    console.log("shutdown() called on browser transport. This is not currently used and will be ignored")
+    this.close();
   }
 
 
